@@ -1,0 +1,24 @@
+<!Doctype html>
+<html>
+    <head>
+        <script>
+            function make(){
+                var img = document.createElement('img');
+
+                img.onclick = function(){document.getElementById('board').removeChild(this)};
+                img.src = './image/bread.png';
+                //img.style.cursor = 'pointer';
+                document.getElementById('board').appendChild(img);
+            }
+            
+            function del(){
+                document.getElementById('board').innerHTML = '';
+            }
+
+        </script>
+    </head>
+    <body>
+        <input type="button" value="create" onclick="make()"> <input type="button" value="remove" onclick="del()">
+        <div id="board" style="width:720"></div>
+    </body>
+</html>

@@ -1,0 +1,56 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Test Game</title>
+        <style>
+            * { padding: 0; margin: 0; }
+            canvas { background: #eee; display: block; margin: 0 auto;}
+        </style>
+    </head>
+    <body>
+        
+        <canvas id="myCanvas" width="480" height="320"></canvas>
+
+        <script>
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+
+            /*
+            ctx.beginPath();
+            ctx.rect(20, 40, 50, 50); // 20,40 : 좌상단모서리부터의 좌표, 50,50 : 너비 높이
+            ctx.fillStyle = "#FF0000";
+            ctx.fill();
+            ctx.strokeStyle = "rgba(0, 200, 255, 1)";
+            ctx.stroke();
+            ctx.arc(240, 160, 20, 0, Math.PI*2, false); // 원 중심 x,y좌표, 반지름, 시작각도와 끝각도, 그리는방향
+            //false : 시계방향, true 반시계
+            ctx.fillStyle = "green";
+            ctx.fill();
+            
+            ctx.closePath();
+
+            */
+
+            ctx.beginPath();
+            ctx.rect(30,40,70,100);
+            ctx.fillStyle = "rgba(20, 100, 200, 0.5)";
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.arc(240, 160, 25, 0, Math.PI*2, false);
+            ctx.fillStyle = "green";
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.rect(20, 200, 40, 40);
+            ctx.strokeStyle = "rgba(20, 100, 200, 0.5)";
+            ctx.stroke();
+            ctx.closePath();
+
+        </script>
+
+    </body>
+</html>

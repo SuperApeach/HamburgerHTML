@@ -1,0 +1,323 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+
+        </style>
+    </head>
+    <body>
+        <div id="buttonBoard">
+          <!--
+            <button id="ingredient1" onclick="addIng1('image/bread.png')">bread</button>
+            <button id="ingredient2" onclick="addIng2()">vege</button>
+
+-->
+        </div>
+
+
+        <canvas id = "myCanvas" width="400" height="600"></canvas>
+        <script src = "script/jquery-3.3.1.min.js"></script>
+        <script>
+            var canvas = document.querySelector("#myCanvas");
+            var context = canvas.getContext("2d");
+
+            /* constant */
+            //const BUTTON_TOP = ;
+            const BUTTON_LEFT = 30;
+            const BUTTON_WIDTH = 80;
+            const BUTTON_HEIGHT = 80;
+            const BUTTON_INTERVAL = 10;
+
+
+            var img1 = new Image();
+            var img2 = new Image();
+            img1.src = "image/bread.png";
+            img2.src = "image/vegetable.png";
+
+            var imgs = [img1,img2];
+
+            /* 배경화면 그림들 */
+            var backImg = new Image();
+            var backImg2 = new Image();
+            backImg2.src = "image/sky2.png";
+            backImg.src = "image/sky.png";
+
+            var ingreArray = []; // 이미지 배열 (이 역시 메뉴들마다 공유)
+
+            var orderedMenu = []; // 메뉴 세트(문제, question) (각 메뉴들이 들어올 수 있는 메뉴변수)
+            var foodNum = 0; // 음식 종류 변수 (햄버거인지 샌드위치인지)
+            var menuNum = 0; // 메뉴 종류 변수 (불고기버거인지 치즈버거인지)
+
+            var checkImage = []; // 만들어질 8개 버튼에 들어갈 재료(이미지)를 넣는 배열
+
+            /* 초기화, 성공, 실패 boolean 변수 */
+            var isInit = true; // 게임 시작할 때 한 번만 씀
+            var isSuccess = false;
+            var isFailure = false;
+
+
+            var score = 0; // 점수(돈)
+
+            /* 재료 열거형 */
+
+            /* 재료 객체 부분 (재료객체 : 재료 - [이미지, 아이콘이미지], 재료 - ...) */
+
+            var ham_bread = {
+                top : ["image/hamburger/topbread.png", "image/hamburger/icon/breadicon.png"],
+                bottom : ["image/hamburger/bottombread.png", "image/hamburger/icon/breadicon.png"]
+            };
+
+            var ham_patty = {
+                meat : ["image/hamburger/patty.png", "image/hamburger/icon/pattyicon.png"],
+                chicken : ["image/hamburger/chicpatty.png", "image/hamburger/icon/chicpattyicon.png"]
+            };
+
+            var ham_cheese = {
+                cheese : ["image/hamburger/cheese.png", "image/hamburger/icon/cheeseicon.png"]
+            };
+
+            var ham_side1 = {
+                bacon : ["image/hamburger/bacon.png", "image/hamburger/icon/baconicon.png"]
+            };
+
+            var ham_side2 = {
+                pickle : ["image/hamburger/pickle.png", "image/hamburger/icon/pickleicon.png"]
+            };
+
+            var ham_sauce = {
+                basic : ["image/hamburger/sauce.png", "image/hamburger/icon/sauceicon.png"],
+                bbq : ["image/hamburger/bbqsauce.png", "image/hamburger/icon/bbqsauceicon.png"],
+                special : ["image/hamburger/specialsauce.png", "image/hamburger/icon/specialsauceicon.png"]
+            };
+
+            var ham_vegetable1 = {
+                lettuce : ["image/hamburger/lettuce.png", "image/hamburger/icon/lettuceicon.png"],
+                onion : ["image/hamburger/onion.png", "image/hamburger/icon/onionicon.png"]
+            };
+
+            var ham_vegetable2 = {
+                tomato : ["image/hamburger/tomato.png", "image/hamburger/icon/tomatoicon.png"]
+            };
+
+
+
+            /* 재료객체들의 배열 부분 */
+            var hamburger = [ham_bread, ham_patty, ham_cheese, ham_side1,
+               ham_sauce, ham_vegetable1, ham_vegetable2, ham_side2];
+
+            var sandwich = {
+                images : ["image/sandwich/bread.png",
+                "image/sandwich/cheese.png",
+                "image/sandwich/ham.png",
+                "image/sandwich/lettuce.png",
+                "image/sandwich/tomato.png"]
+            };
+
+            var foodList = [];// = [hamburger, sandwich]; // 음식 종류 리스트
+            foodList.push(hamburger);
+            //menuList.push(sandwich);
+
+
+            /* 메뉴 리스트 */
+            var menuList = []; // 햄버거메뉴리스트, 샌드위치메뉴리스트 등등
+            var hamburgerMenu = [];
+
+            var basicB = [ham_bread.bottom, ham_patty.meat, ham_sauce.basic, ham_bread.top];
+            // ['bread', 'patty', 'sauce', 'bread'];
+            var cheeseB = [ham_bread.bottom, ham_patty.meat, ham_cheese.cheese, ham_sauce.basic, ham_bread.top];
+            // ['bread', 'patty', 'cheese', 'sauce', 'bread'];
+            var bulgogiB = [ham_bread.bottom, ham_sauce.bbq, ham_patty.meat, ham_vegetable1.lettuce, ham_bread.top];
+            //['bread', 'bbqsauce', 'patty', 'lettuce', 'bread'];
+            var chickenB = [ham_bread.bottom, ham_patty.chicken, ham_vegetable2.tomato, ham_vegetable1.lettuce, ham_bread.top];
+            //['bread', 'chicpatty', 'tomato', 'lettuce', 'bread'];
+            var specialB = [ham_bread.bottom, ham_sauce.special, ham_patty.meat, ham_vegetable1.onion, ham_vegetable2.tomato, ham_cheese.cheese, ham_bread.top];
+            //['bread', 'specialsauce', 'patty', 'onion', 'tomato', 'lettuce', 'cheese', 'bread'];
+
+            hamburgerMenu.push(basicB);
+            hamburgerMenu.push(cheeseB);
+            hamburgerMenu.push(bulgogiB);
+            hamburgerMenu.push(chickenB);
+            hamburgerMenu.push(specialB);
+
+            menuList.push(hamburgerMenu);
+
+            setInterval(draw, 20);
+
+            function draw(){
+                // 배경
+                context.drawImage(backImg, 0, 0, 400, 600);
+                context.drawImage(backImg2, 0, 0, 400, 150);
+                context.drawImage(backImg2, 0, 400, 400, 200);
+
+                if(isInit || isSuccess || isFailure){ // 메뉴 초기화
+                    isInit = false;
+                    isSuccess = false;
+                    isFailure = false;
+                    ingreArray.splice(0, ingreArray.length);
+                    //orderedMenu.splice(0, orderedMenu.length); // 혹은 여기가 문제
+                    // 배열.splice  : 배열 속 내용을 삭제시킴. 객체의 경우 아예 제거가 되버려서
+                    // 기존 참조하던 객체를 살려두고 하려면 깊은 복사를 하여 orderedMenu에 복사하거나
+                    // 이 방법을 사용하면 안됨.
+                    orderedMenu = [];
+                    newOrder(); // 주문 받는 함수. 주문받는 곳
+                    ingreButtons(); // 재료 생성 버튼생성
+                    //createButton("image/sandwich/cheese.png", 100, 100);
+                }
+
+                // 주문받은 메뉴 윗쪽에 표시
+
+                for(var i=0;i<orderedMenu.length;i++){
+                  //  var aaa = imgs[orderedMenu[i]];
+                  //  context.drawImage(imgs[orderedMenu[i]-1], 0 + i*50, 0, 40, 40);
+
+                    var img = new Image();
+                    img.src = orderedMenu[i][1];
+                    context.drawImage(img, 0 + i*50, 0, 40, 40);
+                }
+                // 버튼 눌렀을때 메인 화면에 재료그림 표시
+                for(var i=0;i<ingreArray.length;i++){
+                  context.drawImage(ingreArray[i].img,50,350 - i*10,300,50);
+                }
+
+                drawScore(); // 점수판 표시(돈 표시)
+                checkIngre(); // 성공했나, 틀렸나 확인
+            }
+
+            function newOrder(){ // 새 주문 받는 함수
+                foodNum = Math.floor(Math.random()*1); // 랜덤으로 음식종류(햄버거인지 샌드위치인지) 정해줌
+                menuNum = Math.floor(Math.random()*5); // 메뉴종류 (치즈버거, 불고기버거, 치킨버거 등)
+
+                orderedMenu = menuList[foodNum][menuNum];  // 여기가 문제?
+            }
+
+            function ingreButtons(){ // 주문한 메뉴에 따라 버튼을 생성하는 함수
+                $('img').remove();
+                // foodNum 은 foodList와 menuList가 동시에 사용 가능하다.
+                // 어차피 둘다 똑같은 순서대로 음식종류를 넣기때문,(햄버거->샌드위치 순)
+
+
+                // 우선 체크  어떤 버튼이 들어가야 할지
+                  // 음식 종류부터 체크  --> foodNum 자체로 체크가능
+                  // 그 후 메뉴의 종류 체크 (즉, 버튼에 들어가야할 재료종류 체크)
+
+                //var checkImage = []; // 만들어질 8개 버튼에 들어갈 재료(이미지)를 넣는 배열
+                for(var i=0;i<8;i++){ // 버튼 8개, 즉 foodList안의 재료객체들 순서대로 탐색
+                    var isChange = false;
+                    for(var key in foodList[foodNum][i]){ // 재료객체의 속성들 다 꺼내와서 비교
+                        var aa = menuList[foodNum][menuNum].length;
+                        for(var j=0;j<aa;j++){ // 메뉴리스트안의 메뉴배열 속 속성들과 비교
+                            if(key == menuList[foodNum][menuNum][j]){ // 둘의 속성이 같으면
+                                checkImage[i] = key; //체크이미지안에 그 속성값 넣어줌.
+                                isChange = true;
+                            }
+                        }
+                    }
+                    if(isChange == false){
+                        checkImage[i] = foodList[foodNum][i][Object.keys(foodList[foodNum][i])[0]];
+                    }
+                    isChange = false;
+                }
+
+                for(var i=0;i<8;i++){
+                    if(i<4){
+                        createImgButton(checkImage[i], 425, BUTTON_LEFT + (BUTTON_WIDTH + BUTTON_INTERVAL)*(i));
+                    }
+                    else{
+                        createImgButton(checkImage[i], 515, BUTTON_LEFT + (BUTTON_WIDTH + BUTTON_INTERVAL)*(i-4));
+                    }
+                }
+            }
+
+            function drawScore(){ // 점수(돈) 표시 함수
+                context.font = "16 Arial";
+                context.fillSyte = "0095ee";
+                context.fillText("Score : " + score, 8, 50);
+            }
+
+            function checkIngre(){ // 틀렸나 맞췄나 체크함수
+                var success = 0;
+                var failure = 0;
+
+                var checkIngreNum = ingreArray.length - 1;
+
+                for(var i=0;i<ingreArray.length;i++){
+                    if(orderedMenu[i][0] == ingreArray[i].path){
+                        success++;
+                    }
+                    else{
+                        failure++;
+                    }
+                }
+
+                if((success + failure) == orderedMenu.length){
+                    if(failure == 0){
+                        isSuccess = true;
+                        score += 100;
+                    }
+                    else{
+                        isFailure = true;
+                    }
+                }
+
+            }
+            //버튼 생성 함수.  그림 추가 실패
+            function createButton(ingreAttr, x, y){
+                var button = document.createElement('button');
+                //x = prompt("Inserisci posizione TOP"); // 알림창 띄우고 거기서 값을 입력받는 함수
+                //y = prompt("Inserisci posizione Sinistra");
+
+                //button.style.background_color = 'white';
+                button.style.position = 'absolute';
+                button.style.top = x;
+                button.style.left = y;
+                button.style.width = BUTTON_WIDTH;
+                button.style.height = BUTTON_HEIGHT;
+                button.setAttribute("value", "generated button");
+                button.className = button.className + "button built";
+              //  button.onclick = addIng1;
+                button.addEventListener('click', function (){addIng1(ingreAttr[0])});
+                //button.innerHTML = 'click me'+ x;
+                button.innerHTML = '<img class="btn-img" src="image/hamburger/cheeseicon.png"/>';
+                //button.img = 'image/hamburger/cheese.png';//imagePath;
+
+                document.body.appendChild(button);
+            }
+
+
+            function createImgButton(ingreAttr, x, y){ // 실질적으로 그림 버튼 1개 생성 함수.
+                                  // (재료객체의 속성, x, y 값)
+                var imgButton = document.createElement('img');
+                var imgPath = ingreAttr[0];
+
+                imgButton.style.color = 'white';
+                imgButton.style.position = 'absolute';
+                imgButton.style.top = x;
+                imgButton.style.left = y;
+                imgButton.style.width = BUTTON_WIDTH;
+                imgButton.style.height = BUTTON_HEIGHT;
+                imgButton.addEventListener('click', function(){addIng1(imgPath)}); // 실제 이미지 그림
+                imgButton.src = ingreAttr[1];//'image/hamburger/cheeseicon.png'; // 버튼 그림  function (){addIng1(imgPath)}
+
+                document.body.appendChild(imgButton);
+            }
+
+            function addIng1(str){ // 버튼 누르면 재료를 추가하는 클릭이벤트함수
+                var obj = new Image();
+                obj.src = str; //'image/hamburger/cheese.png';
+
+                var obj2 = {};
+                obj2.img = obj;
+                obj2.path = str;
+
+                ingreArray.push(obj2);
+            }
+
+            function addIng2(str){
+                var a = str;
+            }
+
+
+        </script>
+    </body>
+</html>
